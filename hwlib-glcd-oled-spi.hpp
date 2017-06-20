@@ -54,6 +54,7 @@
  * Note, you can also pass a 128*64/8 -byte buffer to the flush function to flush that to the screen instead.
  */
 
+#include "hwlib.hpp"
 #include <hwlib-graphics.hpp>
 
 namespace hwlib {

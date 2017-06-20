@@ -22,12 +22,28 @@ public:
 		x ( x ), y ( y )
 	{}
 /// \brief
-/// compare two vector values
+/// compare two vector values, equality
 /// \details
 /// This operator tests for equality. It returns true
 /// if the [x, y]-values of both operands are equal.
 	bool operator==( const vector & rhs ) const {
 		return ( x == rhs.x ) && ( y == rhs.y );
+	}
+/// \brief
+/// compare two vector values, smaller than
+/// \details
+/// This operator tests if our vector is smaller than another. It returns true
+/// if either the x- or y-values of our vector is smaller than the right-hand side.
+	bool operator < ( const vector & rhs ) const {
+		return ( x < rhs.x ) || ( y < rhs.y );
+	}
+/// \brief
+/// compare two vector values, bigger than
+/// \details
+/// This operator tests if our vector is bigger than another. It returns true
+/// if either the x- or y-values of our vector is bigger than the right-hand side.
+	bool operator > ( const vector & rhs ) const {
+		return ( x > rhs.x ) || ( y > rhs.y );
 	}
 /// \brief
 /// Add a vector to a vector

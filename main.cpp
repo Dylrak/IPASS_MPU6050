@@ -1,7 +1,8 @@
 #include "hwlib.hpp"
 #include "hwlib-glcd-oled-spi.hpp"
 #include "mpu6050.hpp"
-//#include "ball.hpp"
+#include "ball.hpp"
+#include "wall.hpp"
 
 int main( void ) {
 	WDT->WDT_MR = WDT_MR_WDDIS;
@@ -21,43 +22,23 @@ int main( void ) {
 	auto mpu_i2c = hwlib::i2c_bus_bit_banged_scl_sda( mpu_scl, mpu_sda );
 	auto oled_spi = hwlib::spi_bus_bit_banged_sclk_mosi_miso(sclk, mosi, miso);
 
-	auto oled = hwlib::glcd_oled_spi(oled_spi, cs, dc, reset);
+	auto w = hwlib::glcd_oled_spi(oled_spi, cs, dc, reset);
 	auto mpu = mpu6050(mpu_i2c);
 
-//	ball player(oled, vector(64, 32));
-	hwlib::wait_ms(500);
 	mpu.calibrate();
 
-	hwlib::image_8x8 player (
-		0b00011000,
-		0b01111110,
-		0b01111110,
-		0b11111111,
-		0b11111111,
-		0b01111110,
-		0b01111110,
-		0b00011000
-	);
-	hwlib::image_8x8 clear (
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	);
-	oled.flush();
+	ball player(w, vector(64, 32));
+
+	w.flush();
 //Main loop:
-	uint8_t pitch = 64, roll = 32;
+	int pitch, roll;
 	for (;;) {
+		player.draw();
 		mpu.get_values();
-		oled.write(hwlib::location(pitch, roll), clear, hwlib::buffering::unbuffered);
 //The doubles from roll/pitch are converted into ints and divided by ten.
 //This gives us values ranging from -9:9, which we can use for the ball.
-		pitch += ((int) mpu.get_pitch()) / 10;
-		roll += ((int) mpu.get_roll()) / 10;
-
-		oled.write(hwlib::location(pitch, roll), player, hwlib::buffering::unbuffered);
-		oled.flush();
-
-//		player.draw();
-//		hwlib::cout << "Roll: " << (int) roll
-//		<< " Pitch: " << (int) pitch << "\n";
+		pitch = (int)( mpu.get_pitch() / 8.0);
+		roll = (int)( mpu.get_roll() / 8.0);
+		player.update(vector(pitch, roll));
 	}
 }
